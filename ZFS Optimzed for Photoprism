@@ -4,7 +4,7 @@ Optimize Photoprism with ZFS
 Introduction
 ============
 Many users from the Unraid community and others runs Photoprism with ZFS and might not 
-be aware about any optimization that might be used to improve the performance.
+be aware about any optimization that might be used to improve the performances.
 Through several steps, we’re going to develop a list of good practices that shall have
 a significant impact on the system running Photoprism. We’ll separate these good practices
 in three parts from the zpool creation to the variables relatives to MariaDB
@@ -12,7 +12,7 @@ in three parts from the zpool creation to the variables relatives to MariaDB
 Dataset creation, Special vdev.
 ===============================
 
-For our example, we’ll have a normal build with 3 HDD to store our pictures and 1 NVMe drive
+For our example, we’ll have a normal build with 3 HDD to store our pictures and 2 NVMe drive
 for the Special vDev. This might be important to notice that the HDD must be the same model 
 with the same amount of storage. 
 As an Unraid user, the path might defer from your configuration. You’re free to adapt some paths
@@ -33,6 +33,8 @@ To find the device for our command, we’ll need to launch a first command : ls 
 root@Tower:~# ls /dev/disk/by-id/
 nvme-Micron_7400_MTFDKBG1T9TDZ_2133328D8EA7@
 nvme-eui.000000000000000100a07521328d8ea7@
+nvme-Micron_7400_MTFDKBG1T9TDZ_3244439F9FB8@
+nvme-eui.000000000000000100b18632439e9fb8@
 ata-KINGSTON_SEDC500R1920G_50026B7282A9A0FE@
 ata-KINGSTON_SEDC500R1920G_50026B7683C2C7F3@
 ata-KINGSTON_SEDC500R1920G_50026B7683C2C96A@
@@ -84,7 +86,8 @@ Add the Special vDEV to our Pool
 Now we can add our Special device to the ZFS pool. It first functionnality is to store the metadata from each file.
 Retrieving files and others operations are way quicker than searching on the whole pool. But it can be more than this,
 and we’ll see that later. You should just remind the command to add it to our pool.
-zpool add fastraid -o ashift=12 special nvme-eui.000000000000000100a07521328d8ea7
+
+zpool add fastraid -o ashift=12 special mirror nvme-eui.000000000000000100a07521328d8ea7 nvme-eui.000000000000000100b18632439e9fb8
 Set more properties to our Pool
 zfs set atime=off poolname
 zfs set primarycache=metadata poolname
@@ -197,8 +200,11 @@ First, we’ll simply add the Photoprism recommanded variables :
 MARIADB_AUTO_UPGRADE: "1"
 MARIADB_INITDB_SKIP_TZINFO: "1"
 INNODB_BUFFER_POOL_SIZE : "1G"
---innodb_log_write_ahead_size=16384 --max_connections=512 --innodb_doublewrite=0 --innodb_flush_neighbors=0 
+--innodb_log_write_ahead_size=16384
+
+--max_connections=512 --innodb_doublewrite=0 --innodb_flush_neighbors=0 
 --innodb_flush_method=fsync --innodb_checksum_algorithm=crc32 --innodb_use_atomic_writes=0 --innodb_io_capacity=1000
 --innodb_io_capacity_max=2500 --innodb_file_per_table=1 --innodb_rollback_on_timeout=OFF --transaction_isolation=READ-COMMITTED
+--innodb-compression-algorithm=none
 
 
