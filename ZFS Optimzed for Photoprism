@@ -7,26 +7,33 @@ Many users from the Unraid community and others runs Photoprism with ZFS and mig
 be aware about any optimization that might be used to improve the performances.
 Through several steps, we’re going to develop a list of good practices that shall have
 a significant impact on the system running Photoprism. We’ll separate these good practices
-in three parts from the zpool creation to the variables relatives to MariaDB
-
-Dataset creation, Special vdev.
-===============================
+in three parts from the zpool creation, the datasets definitions, and the variables
+to apply to our respective docker containers MariaDB and Photoprism.
 
 For our example, we’ll have a normal build with 3 HDD to store our pictures and 2 NVMe drive
 for the Special vDev. This might be important to notice that the HDD must be the same model 
 with the same amount of storage. 
+
+Our Pool will be a raidz (or Raid-5) with both NVMe drives used as special mirror drives. This Special vDev will first
+store metadata to improve the raidz index latency for our thousands of pictures, but will natively store our whole
+Appdata files which requires most of I/O operations. So Photoprism and MariaDB won't meet any bottleneck 
+on these drives. Speed and latency on NVMe drive is well known as far better than HDD ones.
+
+ZPool creation, Special vdev.
+============================
+
 As an Unraid user, the path might defer from your configuration. You’re free to adapt some paths
 to your own configuration.
 
 To run Photoprism, 3 folders are significant to work. The Picture folder to store our photos,
-and the Photoprism / MariaDB stored within the Appdata folder. These folders won’t store the same
+and the Photoprism / MariaDB repository stored within the Appdata folder. These folders won’t stock the same
 kind of files as some are heavier and less used, specificaly your pictures, and others are really 
 light but frequently used (your Photoprism and MariaDB files).
 First of all, we need to create our pool. Our disks are brand new, so we don’t need to format it. 
 We must find the name of our drives.
 
 Find our Drives Name
-====================
+....................
 
 To find the device for our command, we’ll need to launch a first command : ls /dev/disk/by-id/ :
 
@@ -54,7 +61,7 @@ and if you migrate your system to another motherboard, you risk to not being abl
 drive letter will change. There’s no risk about it with the naming convention I recommand.
 
 Create our first Pool
-=====================
+.....................
 
 Here are our drives names : wwn-0x50026b7282a9a0fe / wwn-0x50026b7683c2c7f3 / wwn-0x50026b7683c2c96a / nvme-eui.000000000000000100a07521328d8ea7
 To create our pool, the “zpool create” command we’ll be used. Here’s the first command:
@@ -81,7 +88,7 @@ Autotrim=on : Specific to SSD, it’s supposed to be automatic, but we’re para
 the cellules occuped by deleted files for writing to expand it lifespan.
 
 Add the Special vDEV to our Pool
-================================
+................................
 
 Now we can add our Special device to the ZFS pool. It first functionnality is to store the metadata from each file.
 Retrieving files and others operations are way quicker than searching on the whole pool. But it can be more than this,
@@ -104,8 +111,11 @@ so the value is better off to not make the CPU work for nearly nothing.
 recordsize=1M : The recordsize can be seen as the ZFS filesystem block size and represents the minimal size of a data. 
 As photos used to weight several MB/Mo, we’ll set the value to 1M and explain in the next part why we’re doing it.
 
+Dataset creation and properties
+===============================
+
 Before creating our dataset
-===========================
+...........................
 
 Let’s talk about the ZFS inheritance. Zpool properties can be inherited from their parents. In that case, I set the 
 recordsize to "1M" on the storage pool filesystem "yourpoolname" ("yourpoolname " is more than just a storage pool- 
@@ -113,7 +123,7 @@ it is a valid ZFS dataset). As such, any datasets created under the "tank" datas
 Let's create a nested dataset, and see how this comes into play:
 
 Create our datasets
-===================
+...................
 
 To store our photos, datasets uses a propertie named « recordsize » and with a default value set to « 128k ». 
 If this value is alright for most of the files we could find on a system, this value is not optimized for pictures 
@@ -145,7 +155,7 @@ zfs create yourpoolname/Appdata/photoprism
 zfs create yourpoolname/Appdata/mariadb
 
 Optimize our datasets
-=====================
+.....................
 
 Recordsize :
 zfs set recordsize=128k yourpoolname /Appdata/photoprism
@@ -170,7 +180,7 @@ Concerning the Photoprism subdataset, you might set it to metadata only if you�
 propertie will dramatically improve our Photoprism application.
 
 The special_small_blocks property
-=================================
+.................................
 
 The ZFS Special Device can store metadata (where files are, allocation tables, etc) which already improve performances
 greatly AND, optionally, small files up to a user-defined size on this special vdev
@@ -194,8 +204,11 @@ faster tiny SSD drive and leaving our HDD runs alone with higher capacity, the S
 Be aware to backup your photos, if both the Special Device fails, you’ll loose the photos from your zpool as their metadata are store on it.
 That's why we configured a mirror against hardware failure.
 
+Docker containers properties
+============================
+
 MariaDB variables
-=================
+.................
 
 First, we’ll simply add the Photoprism recommanded variables :
 MARIADB_AUTO_UPGRADE: "1"
@@ -242,7 +255,7 @@ Not necessary on NVMe drives for an home use.
 --transaction_isolation=READ-COMMITTED
 
 Photoprism Variables
-====================
+....................
 
 Let's add these two variables to our Photoprism container. 
 
