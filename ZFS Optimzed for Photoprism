@@ -226,7 +226,15 @@ nearby blocks, this typically just wastes disk I/O. It is better to disable it o
 
 --innodb_io_capacity=1000
 --innodb_io_capacity_max=2500
---innodb_file_per_table=1
+Most of our activities happening onto our SSD, we can set higher values than usual due to better performances than HDD.
+
+innodb_use_native_aio=0
+By setting this parameter, we disable asynchronous writes from MariaSQL. ZFS handle it-self sync and async writes and must handle it according 
+to the the sync dataset property.
+
+--innodb_file_per_table=ON
+Create relative files inside of our optimize recordsize dataset
+
 --innodb_rollback_on_timeout=OFF
 --transaction_isolation=READ-COMMITTED
 
