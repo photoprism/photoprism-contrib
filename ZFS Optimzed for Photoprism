@@ -226,7 +226,8 @@ nearby blocks, this typically just wastes disk I/O. It is better to disable it o
 
 --innodb_io_capacity=1000
 --innodb_io_capacity_max=2500
-Most of our activities happening onto our SSD, we can set higher values than usual due to better performances than HDD.
+Most of our activities happening onto our SSD, we can set higher values than usual due to better performances than HDD. Can be set higher
+but impacts NAND Cell wearing
 
 innodb_use_native_aio=0
 By setting this parameter, we disable asynchronous writes from MariaSQL. ZFS handle it-self sync and async writes and must handle it according 
@@ -236,7 +237,13 @@ to the the sync dataset property.
 Create relative files inside of our optimize recordsize dataset
 
 --innodb_rollback_on_timeout=OFF
+Not necessary on NVMe drives for an home use. 
+
 --transaction_isolation=READ-COMMITTED
+
+Photoprism Variables
+====================
+
 
 
 
