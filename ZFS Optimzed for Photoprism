@@ -10,7 +10,7 @@ a significant impact on the system running Photoprism. We’ll separate these go
 in three parts from the zpool creation, the datasets definitions, and the variables
 to apply to our respective docker containers MariaDB and Photoprism.
 
-For our example, we’ll have a normal build with 3 HDD to store our pictures and 2 NVMe drive
+For our example, we’ll have a build with 3 HDD to store our pictures and 2 NVMe drive
 for the Special vDev. This might be important to notice that the HDD must be the same model 
 with the same amount of storage. 
 
@@ -35,7 +35,7 @@ We must find the name of our drives.
 Find our Drives Name
 ....................
 
-To find the device for our command, we’ll need to launch a first command : ls /dev/disk/by-id/ :
+To find the device to create our pool, we’ll need to launch a first command : ls /dev/disk/by-id/ :
 
 root@Tower:~# ls /dev/disk/by-id/
 nvme-Micron_7400_MTFDKBG1T9TDZ_2133328D8EA7@
@@ -63,27 +63,36 @@ drive letter will change. There’s no risk about it with the naming convention 
 Create our first Pool
 .....................
 
-Here are our drives names : wwn-0x50026b7282a9a0fe / wwn-0x50026b7683c2c7f3 / wwn-0x50026b7683c2c96a / nvme-eui.000000000000000100a07521328d8ea7
+Here are our drives names : wwn-0x50026b7282a9a0fe / wwn-0x50026b7683c2c7f3 / wwn-0x50026b7683c2c96a 
+/ nvme-eui.000000000000000100a07521328d8ea7 / nvme-eui.000000000000000100b18632439e9fb8
 To create our pool, the “zpool create” command we’ll be used. Here’s the first command:
-zpool create -m /mnt/fastraid fastraid raidz wwn-0x50026b7282a9a0fe wwn-0x50026b7683c2c7f3 wwn-0x50026b7683c2c96a
+
+zpool create -m /mnt/poolpath poolname raidz wwn-0x50026b7282a9a0fe wwn-0x50026b7683c2c7f3 wwn-0x50026b7683c2c96a
 -o ashift=12 -o autotrim=on -o autoexpand=on -o autoreplace=on
 
 Let’s decipher each argument from this command:
 
--m /mnt/poolpathfastraid : -m indicates the mountpoint path to our pool, it’s followed by its path /mnt/poolpath
-Poolname : the name of our pool 
+-m /mnt/poolpath : -m indicates the mountpoint path to our pool, it’s followed by its path /mnt/poolpath
+
+Poolname : the name of our pool if we want to apply zfs or zpool commands later to a specific pool
+
 Raidz : It specify the kind of pool we wish. Here’s the more known Raid-5 allowing use to loose 1 drive without definite data loss.
+
 -o : Switch to specify the introduction of a propertie at our pool creation and must be repeated for each one.
+
 ashift=12 : First of all, the ashift propertie set the pool sector size exponent, to the power of 2. 
 More simple and not totally right, the interval between data and parity data as the Raid logical size. 
 The value depends of your storage physical sector size without talking about the flash page size of the SSD. 
 This value concerning the SSD is a real debate, so we’ll not talk about it. It’s only safe to set it to 12 which
 represents a 4k logical size. The operating system utilities write/read operation on our drive will then treat 4KiB per I/O.
+
 Autoexpand=on : If we replace after successfull resilvering all our disks with higher capacity ones,
 the ZFS pool will automaticallly resize and use the whole space newly accessible.
+
 Autoreplace=on : In case of drive replacement, ZFS detects by the drive location a replacement and
 automatically integrate the new drive with a resilvering. It does work when a hot spare is available, 
 but it must be set when we create the pool before a hot spare is added later to not forget that the parameter was not activated. 
+
 Autotrim=on : Specific to SSD, it’s supposed to be automatic, but we’re paranoid. It let the SSD indicates 
 the cellules occuped by deleted files for writing to expand it lifespan.
 
@@ -95,19 +104,26 @@ Retrieving files and others operations are way quicker than searching on the who
 and we’ll see that later. You should just remind the command to add it to our pool.
 
 zpool add fastraid -o ashift=12 special mirror nvme-eui.000000000000000100a07521328d8ea7 nvme-eui.000000000000000100b18632439e9fb8
-Set more properties to our Pool
+
+Let set more properties to our Pool:
+....................................
+
 zfs set atime=off poolname
 zfs set primarycache=metadata poolname
 zfs set compression=off poolname
 zfs set dedup=off poolname
 zfs set recordsize=1M poolname
+
 Atime=off :  Controls whether or not the access time of files is updated when the file is read.
 This is not really relevant for a personnal NAS/Server and diminish the read/write operation by the « off » value.
+
 Primarycache=metadata : Controls what is cached in the primary cache (ARC). If this property is set to "all", 
 then both user data and metadata is cached. If set to "none", then neither are cached. If set to "metadata", then
 only metadata is cached
+
 Compression=off : Literally the compression use for every file on the pool. Pictures and videos are barely not compressible,
 so the value is better off to not make the CPU work for nearly nothing.
+
 recordsize=1M : The recordsize can be seen as the ZFS filesystem block size and represents the minimal size of a data. 
 As photos used to weight several MB/Mo, we’ll set the value to 1M and explain in the next part why we’re doing it.
 
@@ -118,8 +134,8 @@ Before creating our dataset
 ...........................
 
 Let’s talk about the ZFS inheritance. Zpool properties can be inherited from their parents. In that case, I set the 
-recordsize to "1M" on the storage pool filesystem "yourpoolname" ("yourpoolname " is more than just a storage pool- 
-it is a valid ZFS dataset). As such, any datasets created under the "tank" dataset will inherit that property. 
+recordsize to "1M" on the storage pool filesystem "poolname" ("poolname " is more than just a storage pool- 
+it is a valid ZFS dataset). As such, any datasets created under the "poolname" dataset will inherit that property. 
 Let's create a nested dataset, and see how this comes into play:
 
 Create our datasets
@@ -132,15 +148,15 @@ dataset created will inherit this propertie.
 
 To create our first dataset :
 
-zfs create yourpoolname/Photos
+zfs create poolname/Photos
 
 To check our Zpool propertie inheritance :
 
-zfs get -r recordsize yourpoolname
+zfs get -r recordsize poolname
 
 NAME                    PROPERTY    VALUE    SOURCE
-yourpoolname            recordsize  1M       local
-yourpoolname/Photos     recordsize  1M       inherited from yourpoolname
+poolname            recordsize  1M       local
+poolname/Photos     recordsize  1M       inherited from poolname
 
 Now that we’re aware about this particularity we’ll reverse the Zpool recordsize to its original value and set it to 
 the child dataset to break the inheritance.
@@ -158,26 +174,27 @@ Optimize our datasets
 .....................
 
 Recordsize :
-zfs set recordsize=128k yourpoolname /Appdata/photoprism
-zfs set recordsize=16k yourpoolname /Appdata/mariadb
-For MariaDB, due to a component named InnoDB. InnoDB uses 16KB pages. Using this propertie, we tell ZFS to limit the 
+zfs set recordsize=128k poolname/Appdata/photoprism
+zfs set recordsize=16k poolname/Appdata/mariadb
+
+For MariaDB, due to a component named InnoDB. InnoDB uses 16KB pages. Using this property, we tell ZFS to limit the 
 block size to 16KB. This prevents multiple pages from being written in one larger block, as that would necessitate 
 reading the entire larger block for future updates to any one page in that block
 
 Compression :
-zfs set compression=lz4 yourpoolname /Appdata/photoprism
-zfs set compression=lz4 yourpoolname /Appdata/mariadb
+zfs set compression=lz4 poolname/Appdata/photoprism
+zfs set compression=lz4 poolname/Appdata/mariadb
 ZFS LZ4 compression is incredibly fast, so we should leave compression to ZFS and not use InnoDB’s built in page 
 compression. As an added benefit, leaving compression to ZFS doesn’t disrupt the block alignment. A variable within
 the MariaDB container shall be added to make this parameter efficient.
 
 Primarycache :
-zfs set primarycache=metadata yourpoolname/Appdata/mariadb
+zfs set primarycache=metadata poolname/Appdata/mariadb
 Since InnoDB already does it’s own caching via the Buffer Pool, there is no benefit to also caching the data in the
 page cache, or in the case of ZFS, ARC. Since O_DIRECT (a special flag for application generating their own caching)
 doesn’t disable caching on ZFS, we can disable caching of data in the ARC by setting primarycache to only cache metadata.
 Concerning the Photoprism subdataset, you might set it to metadata only if you’re short on RAM. Whatever, the next 
-propertie will dramatically improve our Photoprism application.
+property will dramatically improve our Photoprism and MariaDB performances.
 
 The special_small_blocks property
 .................................
@@ -187,14 +204,14 @@ greatly AND, optionally, small files up to a user-defined size on this special v
 ZFS dataset offers so the property special_small_blocks=size - This value represents the threshold block size for including
 small file blocks into the special allocation class. Blocks smaller than or equal to this value will be assigned to the 
 special allocation class while greater blocks will be assigned to the regular class.
-If you set it to the same size as your zfs record size, then everything will go to the special device. This special device
+If you set it to the same size as your zfs recordsize, then everything will go to the special device. This special device
 (an NVMe SSD) which is more efficient for reading/writing operations due to it’s better latency and speed.
 So if we set this propertie with the same value that ours datasets recordsize property :
 
 zfs set special_small_blocks=16K yourpoolname/Appdata/mariadb
 zfs set special_small_blocks=128K yourpoolname/Appdata/photoprism
 
-All the data shall automatically be written and read onto our SSD way more flawlessly than on our raidz pool. 
+All the data shall automatically be written and read onto our SSD. 
 Automatically, we only use our HDD to store our pictures. The applications (MariaDB/Photoprism/Photoprism Web Server)
 doesn’t uses the slow disks, deteriorating them more due to important I/O requests, but runs smoothly on the Special Device.
 This Special helping furthermore to index our slow HDD which shall run mostly for the checksums and parity calculations, 
@@ -203,6 +220,8 @@ Contrary to the L2ARC which is only a read cache for data evicted from ARC (RAM)
 faster tiny SSD drive and leaving our HDD runs alone with higher capacity, the Special authorize to profit from both.  
 Be aware to backup your photos, if both the Special Device fails, you’ll loose the photos from your zpool as their metadata are store on it.
 That's why we configured a mirror against hardware failure.
+
+!! Never remove Special without a backup of your files, all files's metadata being gone, files are damaged and non recoverable !!
 
 Docker containers properties
 ============================
