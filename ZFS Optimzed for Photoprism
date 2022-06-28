@@ -78,9 +78,9 @@ Poolname : the name of our pool if we want to apply zfs or zpool commands later 
 
 Raidz : It specify the kind of pool we wish. Here’s the more known Raid-5 allowing use to loose 1 drive without definite data loss.
 
--o : Switch to specify the introduction of a propertie at our pool creation and must be repeated for each one.
+-o : Switch to specify the introduction of a property at our pool creation and must be repeated for each one.
 
-ashift=12 : First of all, the ashift propertie set the pool sector size exponent, to the power of 2. 
+ashift=12 : First of all, the ashift property set the pool sector size exponent, to the power of 2. 
 More simple and not totally right, the interval between data and parity data as the Raid logical size. 
 The value depends of your storage physical sector size without talking about the flash page size of the SSD. 
 This value concerning the SSD is a real debate, so we’ll not talk about it. It’s only safe to set it to 12 which
@@ -206,7 +206,7 @@ small file blocks into the special allocation class. Blocks smaller than or equa
 special allocation class while greater blocks will be assigned to the regular class.
 If you set it to the same size as your zfs recordsize, then everything will go to the special device. This special device
 (an NVMe SSD) which is more efficient for reading/writing operations due to it’s better latency and speed.
-So if we set this propertie with the same value that ours datasets recordsize property :
+So if we set this property with the same value that ours datasets recordsize property :
 
 zfs set special_small_blocks=16K yourpoolname/Appdata/mariadb
 zfs set special_small_blocks=128K yourpoolname/Appdata/photoprism
@@ -225,6 +225,9 @@ That's why we configured a mirror against hardware failure.
 
 Docker containers properties
 ============================
+
+Notice for Unraid users, when a parameter is displayed with "--" and low cases, you must select the Advanced View in the
+top right corner of the container, and fill those in the "Post Arguments" field. Each argument is separated with an underspace. 
 
 MariaDB variables
 .................
@@ -271,8 +274,6 @@ Create relative files inside of our optimize recordsize dataset
 --innodb_rollback_on_timeout=OFF
 Not necessary on NVMe drives for an home use. 
 
---transaction_isolation=READ-COMMITTED
-
 Photoprism Variables
 ....................
 
@@ -282,5 +283,14 @@ PHOTOPRISM_DATABASE_CONNS=512
 PHOTOPRISM_DATABASE_CONNS_IDLE=512
 We give it the value we've set in the MariaDB container with --max-connections parameter.
 
-That's all Folks.
+Conclusion
+==========
+
+That's all Folks. By this tutorial, we smoothly mixed HDD and SSD with a single zpool. Our HDD are exclusively storing our data,
+whereas the most of the activity is charging our SSD. To this matters, some parameters has been applied to MariaDB in order
+to optimize it's behaviour onto a NAND storage, NVMe speed access and ZFS filesystem. 
+Our HDD gains benefits from the SSD which stores the "index" of all our files for others purposes as traversing all blocks,
+retrieving special info as file size which will drastically diminish latency if using SMB or NFS shares.
+
+Feel free to improve this tutorial or post some suggestion!
 
