@@ -6,15 +6,15 @@
 
 ### Config Examples and Tutorials
 
-- [Running PhotoPrism with Podman and systemd](tutorials/fs/ZFS%20Optimzed%20for%20Photoprism.md)
+- [Running PhotoPrism with Podman and systemd](config/podman-systemd/README.md)
 - [Optimizing ZFS Storage for PhotoPrism](tutorials/fs/ZFS%20Optimzed%20for%20Photoprism.md)
 
-## Connect with the Community ##
+## Connect with the Community
 
 Follow us on [Twitter](https://link.photoprism.app/twitter) and join the [Community Chat](https://link.photoprism.app/chat)
 to get regular updates, connect with other users, and discuss your ideas. Our [Code of Conduct](https://photoprism.app/code-of-conduct) explains the "dos and don’ts" when interacting with other community members.
 
-## Related Repositories ##
+## Related Repositories
 
 - [photoprism/photoprism](https://github.com/photoprism/photoprism) - AI-Powered Photos App for the Decentralized Web 🌈💎✨
 - [photoprism/photoprism-docs](https://github.com/photoprism/photoprism-docs) - Official Documentation (English)
