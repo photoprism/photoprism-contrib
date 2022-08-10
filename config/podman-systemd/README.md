@@ -70,7 +70,7 @@ git clone https://github.com/photoprism/photoprism-contrib.git
 navigate into the repository
 
 ```shell
-cd photoprism-contrib
+cd photoprism-contrib/config/podman-systemd/
 ```
 
 ### configuring the containers
@@ -80,8 +80,8 @@ All relevant files are located in `podman-systemd`
 #### creating your config files
 
 ```shell
-cp podman-systemd/container-photoprism-database-user.template podman-systemd/container-photoprism-database-user.env
-cp podman-systemd/container-photoprism-webserver-user.template podman-systemd/container-photoprism-webserver-user.env
+cp ./container-photoprism-database-user.template ./container-photoprism-database-user.env
+cp ./container-photoprism-webserver-user.template ./container-photoprism-webserver-user.env
 ```
 
 #### database
@@ -105,7 +105,7 @@ You can change this by editing the two files `container-photoprism-database-user
 In case you decided to persist your data in non-standard directories or you are running photoprism as another user, you would need to create a new `.env` file and adjust it accordingly:
 
 ```shell
-cp podman-systemd/volumes-photoprism-user.template podman-systemd/volumes-photoprism-user.env
+cp ./volumes-photoprism-user.template ./volumes-photoprism-user.env
 ```
 
 #### initial admin password for photoprism
@@ -122,8 +122,8 @@ All [config option described here](https://docs.photoprism.app/getting-started/c
 
 ```shell
 ln -s \
- $(pwd)/podman-systemd/*.service \
- $(pwd)/podman-systemd/*.env \
+ $(pwd)/*.service \
+ $(pwd)/*.env \
  ~/.config/systemd/user/
 ```
 
