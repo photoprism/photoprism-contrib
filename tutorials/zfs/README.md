@@ -1,14 +1,13 @@
-Optimize Photoprism with ZFS
-****************************
+# Optimizing ZFS Storage for PhotoPrism
 
-Introduction
-============
-Many users from the Unraid community and others runs Photoprism with ZFS and might not 
+## Introduction
+
+Many users from the Unraid community and others runs PhotoPrism with ZFS and might not 
 be aware about any optimization that might be used to improve the performances.
 Through several steps, we’re going to develop a list of good practices that shall have
-a significant impact on the system running Photoprism. We’ll separate these good practices
+a significant impact on the system running PhotoPrism. We’ll separate these good practices
 in three parts from the zpool creation, the datasets definitions, and the variables
-to apply to our respective docker containers MariaDB and Photoprism.
+to apply to our respective docker containers MariaDB and PhotoPrism.
 
 For our example, we’ll have a build with 3 HDD to store our pictures and 2 NVMe drive
 for the Special vDev. This might be important to notice that the HDD must be the same model 
@@ -16,27 +15,26 @@ with the same amount of storage.
 
 Our Pool will be a raidz (or Raid-5) with both NVMe drives used as special mirror drives. This Special vDev will first
 store metadata to improve the raidz index latency for our thousands of pictures, but will natively store our whole
-Appdata files which requires most of I/O operations. So Photoprism and MariaDB won't meet any bottleneck 
+Appdata files which requires most of I/O operations. So PhotoPrism and MariaDB won't meet any bottleneck 
 on these drives. Speed and latency on NVMe drive is well known as far better than HDD ones.
 
-ZPool creation, Special vdev.
-============================
+## ZPool creation, Special vdev.
 
 As an Unraid user, the path might defer from your configuration. You’re free to adapt some paths
 to your own configuration.
 
-To run Photoprism, 3 folders are significant to work. The Picture folder to store our photos,
-and the Photoprism / MariaDB repository stored within the Appdata folder. These folders won’t stock the same
-kind of files as some are heavier and less used, specificaly your pictures, and others are really 
-light but frequently used (your Photoprism and MariaDB files).
+To run PhotoPrism, 3 folders are significant to work. The Picture folder to store our photos,
+and the PhotoPrism / MariaDB repository stored within the Appdata folder. These folders won’t stock the same
+kind of files as some are heavier and less used, specifically your pictures, and others are really 
+light but frequently used (your PhotoPrism and MariaDB files).
 First of all, we need to create our pool. Our disks are brand new, so we don’t need to format it. 
 We must find the name of our drives.
 
-Find our Drives Name
-....................
+### Find our Drives Name
 
-To find the device to create our pool, we’ll need to launch a first command : ls /dev/disk/by-id/ :
+To find the device to create our pool, we’ll need to launch a first command:
 
+```
 root@Tower:~# ls /dev/disk/by-id/
 nvme-Micron_7400_MTFDKBG1T9TDZ_2133328D8EA7@
 nvme-eui.000000000000000100a07521328d8ea7@
@@ -48,37 +46,39 @@ ata-KINGSTON_SEDC500R1920G_50026B7683C2C96A@
 wwn-0x50026b7282a9a0fe@
 wwn-0x50026b7683c2c7f3@
 wwn-0x50026b7683c2c96a@
+```
 
 We can see that our drive have two names. The first SATA drive has the entry 
 “ata-KINGSTON_SEDC500R1920G_50026B7282A9A0FE@” or “wwn-0x50026b7282a9a0fe@“ for example, and the
 NVMe drive “nvme-Micron_7400_MTFDKBG1T9TDZ_2133328D8EA7@” or “nvme-eui.000000000000000100a07521328d8ea7@“.
-For the SATA drives, you’ll use the “wwn-0xXXXXXXXXXXXX” identifier and for the NVMe drive,
-the “nvme-eui.00000000000000000000XXXXXXXX” identifier if both are available. The reason is that those
+For the SATA drives, you’ll use the `wwn-0xXXXXXXXXXXXX` identifier and for the NVMe drive,
+the `nvme-eui.00000000000000000000XXXXXXXX` identifier if both are available. The reason is that those
 names are strictly unique contrary to the UUID which can be copied to another disk for some upgrade reasons
 I won’t relate. Tutorials writers are paranoid. The @ caracter must be removed.
-You must not use the /dev/sdX or /dev/nvmeXnX. These aliases are not fixed and can change after a reboot,
+You must not use the `/dev/sdX` or `/dev/nvmeXnX`. These aliases are not fixed and can change after a reboot,
 and if you migrate your system to another motherboard, you risk to not being able to mount your zpool has
-drive letter will change. There’s no risk about it with the naming convention I recommand.
+drive letter will change. There’s no risk about it with the naming convention I recommend.
 
-Create our first Pool
-.....................
+### Create our first Pool
 
 Here are our drives names : wwn-0x50026b7282a9a0fe / wwn-0x50026b7683c2c7f3 / wwn-0x50026b7683c2c96a 
 / nvme-eui.000000000000000100a07521328d8ea7 / nvme-eui.000000000000000100b18632439e9fb8
 To create our pool, the “zpool create” command we’ll be used. Here’s the first command:
 
+```
 zpool create -m /mnt/poolpath poolname raidz wwn-0x50026b7282a9a0fe wwn-0x50026b7683c2c7f3 wwn-0x50026b7683c2c96a
 -o ashift=12 -o autotrim=on -o autoexpand=on -o autoreplace=on
+```
 
 Let’s decipher each argument from this command:
 
--m /mnt/poolpath : -m indicates the mountpoint path to our pool, it’s followed by its path /mnt/poolpath
+`-m /mnt/poolpath`: `-m` indicates the mountpoint path to our pool, it’s followed by its path `/mnt/poolpath`
 
 Poolname : the name of our pool if we want to apply zfs or zpool commands later to a specific pool
 
 Raidz : It specify the kind of pool we wish. Here’s the more known Raid-5 allowing use to loose 1 drive without definite data loss.
 
--o : Switch to specify the introduction of a property at our pool creation and must be repeated for each one.
+`-o` : Switch to specify the introduction of a property at our pool creation and must be repeated for each one.
 
 ashift=12 : First of all, the ashift property set the pool sector size exponent, to the power of 2. 
 More simple and not totally right, the interval between data and parity data as the Raid logical size. 
@@ -96,23 +96,25 @@ but it must be set when we create the pool before a hot spare is added later to 
 Autotrim=on : Specific to SSD, it’s supposed to be automatic, but we’re paranoid. It let the SSD indicates 
 the cellules occuped by deleted files for writing to expand it lifespan.
 
-Add the Special vDEV to our Pool
-................................
+### Add the Special vDEV to our Pool
 
 Now we can add our Special device to the ZFS pool. It first functionnality is to store the metadata from each file.
 Retrieving files and others operations are way quicker than searching on the whole pool. But it can be more than this,
 and we’ll see that later. You should just remind the command to add it to our pool.
 
+```
 zpool add fastraid -o ashift=12 special mirror nvme-eui.000000000000000100a07521328d8ea7 nvme-eui.000000000000000100b18632439e9fb8
+```
 
-Let set more properties to our Pool:
-....................................
+### Let set more properties to our Pool:
 
+```
 zfs set atime=off poolname
 zfs set primarycache=metadata poolname
 zfs set compression=off poolname
 zfs set dedup=off poolname
 zfs set recordsize=1M poolname
+```
 
 Atime=off :  Controls whether or not the access time of files is updated when the file is read.
 This is not really relevant for a personnal NAS/Server and diminish the read/write operation by the « off » value.
@@ -127,19 +129,16 @@ so the value is better off to not make the CPU work for nearly nothing.
 recordsize=1M : The recordsize can be seen as the ZFS filesystem block size and represents the minimal size of a data. 
 As photos used to weight several MB/Mo, we’ll set the value to 1M and explain in the next part why we’re doing it.
 
-Dataset creation and properties
-===============================
+## Dataset creation and properties
 
-Before creating our dataset
-...........................
+### Before creating our dataset
 
 Let’s talk about the ZFS inheritance. Zpool properties can be inherited from their parents. In that case, I set the 
 recordsize to "1M" on the storage pool filesystem "poolname" ("poolname " is more than just a storage pool- 
 it is a valid ZFS dataset). As such, any datasets created under the "poolname" dataset will inherit that property. 
 Let's create a nested dataset, and see how this comes into play:
 
-Create our datasets
-...................
+### Create our datasets
 
 To store our photos, datasets uses a propertie named « recordsize » and with a default value set to « 128k ». 
 If this value is alright for most of the files we could find on a system, this value is not optimized for pictures 
@@ -170,8 +169,7 @@ zfs create yourpoolname/Appdata
 zfs create yourpoolname/Appdata/photoprism
 zfs create yourpoolname/Appdata/mariadb
 
-Optimize our datasets
-.....................
+### Optimize our datasets
 
 Recordsize :
 zfs set recordsize=128k poolname/Appdata/photoprism
@@ -193,11 +191,10 @@ zfs set primarycache=metadata poolname/Appdata/mariadb
 Since InnoDB already does it’s own caching via the Buffer Pool, there is no benefit to also caching the data in the
 page cache, or in the case of ZFS, ARC. Since O_DIRECT (a special flag for application generating their own caching)
 doesn’t disable caching on ZFS, we can disable caching of data in the ARC by setting primarycache to only cache metadata.
-Concerning the Photoprism subdataset, you might set it to metadata only if you’re short on RAM. Whatever, the next 
-property will dramatically improve our Photoprism and MariaDB performances.
+Concerning the PhotoPrism subdataset, you might set it to metadata only if you’re short on RAM. Whatever, the next 
+property will dramatically improve our PhotoPrism and MariaDB performances.
 
-The special_small_blocks property
-.................................
+### The special_small_blocks property
 
 The ZFS Special Device can store metadata (where files are, allocation tables, etc) which already improve performances
 greatly AND, optionally, small files up to a user-defined size on this special vdev
@@ -208,14 +205,16 @@ If you set it to the same size as your zfs recordsize, then everything will go t
 (an NVMe SSD) which is more efficient for reading/writing operations due to it’s better latency and speed.
 So if we set this property with the same value that ours datasets recordsize property :
 
+```
 zfs set special_small_blocks=16K yourpoolname/Appdata/mariadb
 zfs set special_small_blocks=128K yourpoolname/Appdata/photoprism
+```
 
 All the data shall automatically be written and read onto our SSD. 
-Automatically, we only use our HDD to store our pictures. The applications (MariaDB/Photoprism/Photoprism Web Server)
-doesn’t uses the slow disks, deteriorating them more due to important I/O requests, but runs smoothly on the Special Device.
+Automatically, we only use our HDD to store our pictures. The applications (MariaDB/PhotoPrism/PhotoPrism Web Server)
+doesn't use the slow disks, deteriorating them more due to important I/O requests, but runs smoothly on the Special Device.
 This Special helping furthermore to index our slow HDD which shall run mostly for the checksums and parity calculations, 
-and sometimes for the Photoprism indexing and Tensorflow algorithm.
+and sometimes for the PhotoPrism indexing and Tensorflow algorithm.
 Contrary to the L2ARC which is only a read cache for data evicted from ARC (RAM), or putting our application to a separate 
 faster tiny SSD drive and leaving our HDD runs alone with higher capacity, the Special authorize to profit from both.  
 Be aware to backup your photos, if both the Special Device fails, you’ll loose the photos from your zpool as their metadata are store on it.
@@ -223,44 +222,46 @@ That's why we configured a mirror against hardware failure.
 
 !! Never remove Special without a backup of your files, all files's metadata being gone, files are damaged and non recoverable !!
 
-Docker containers properties
-============================
+## Docker containers properties
 
 Notice for Unraid users, when a parameter is displayed with "--" and low cases, you must select the Advanced View in the
-top right corner of the container, and fill those in the "Post Arguments" field. Each argument is separated with an underspace. 
+top right corner of the container, and fill those in the "Post Arguments" field. Each argument is separated with an underscore. 
 
-MariaDB variables
-.................
+### MariaDB variables
 
-First, we’ll simply add the Photoprism recommanded variables :
+First, we’ll simply add the PhotoPrism recommanded variables :
+
+```
 MARIADB_AUTO_UPGRADE: "1"
 MARIADB_INITDB_SKIP_TZINFO: "1"
 INNODB_BUFFER_POOL_SIZE : "1G"
---innodb_log_write_ahead_size=16384
+```
+
+`--innodb_log_write_ahead_size=16384`
 This refers directly to the 16k recordsize dataset. So for each Read/Write request, one full InnoDB fill is procedeed.  
 
---innodb-compression-algorithm=none
+`--innodb-compression-algorithm=none`
 As we already set our dataset with lz4 compression, we don't need our cpu to proceed a second one for MariaDB, so we set it off
 
---max_connections=512
-Relating to another Photoprism variable, we align the number of connections to the database to the same value.
+`--max_connections=512`
+Relating to another PhotoPrism variable, we align the number of connections to the database to the same value.
 
---innodb_checksum_algorithm=crc32
+`--innodb_checksum_algorithm=crc32`
 Since MariaDB 10.6.0, checksum can't no more be desactivated, so we let it to the minimal value crc32. Use full_crc32 to support encryption.
 
---innodb_use_atomic_writes=0
---innodb_doublewrite=0
---innodb_flush_method=fsync
+`--innodb_use_atomic_writes=0`
+`--innodb_doublewrite=0`
+`--innodb_flush_method=fsync`
 To be short, these mechanisms offers to assure any write really is proceded on the disk. ZFS using atomic write for parity calculation,
 we desactivate them to not suffer troubleshooting. 
 
---innodb_flush_neighbors=0 
+`--innodb_flush_neighbors=0` 
 When it is time to flush out a page to disk, InnoDB also flushes all of the nearby pages as well. This is beneficial on spinning rust 
 and with traditional file systems, but with a copy-on-write file system like ZFS where logically nearby blocks are not necessarily physically
 nearby blocks, this typically just wastes disk I/O. It is better to disable it on ZFS, even when using mechanical disks.
 
---innodb_io_capacity=1000
---innodb_io_capacity_max=2500
+`--innodb_io_capacity=1000`
+`--innodb_io_capacity_max=2500`
 Most of our activities happening onto our SSD, we can set higher values than usual due to better performances than HDD. Can be set higher
 but impacts NAND Cell wearing
 
@@ -268,23 +269,21 @@ innodb_use_native_aio=0
 By setting this parameter, we disable asynchronous writes from MariaSQL. ZFS handle it-self sync and async writes and must handle it according 
 to the the sync dataset property.
 
---innodb_file_per_table=ON
+`--innodb_file_per_table=ON`
 Create relative files inside of our optimize recordsize dataset
 
---innodb_rollback_on_timeout=OFF
+`--innodb_rollback_on_timeout=OFF`
 Not necessary on NVMe drives for an home use. 
 
-Photoprism Variables
-....................
+### PhotoPrism Variables
 
-Let's add these two variables to our Photoprism container. 
+Let's add these two variables to our PhotoPrism container. 
 
 PHOTOPRISM_DATABASE_CONNS=512
 PHOTOPRISM_DATABASE_CONNS_IDLE=512
 We give it the value we've set in the MariaDB container with --max-connections parameter.
 
-Conclusion
-==========
+## Conclusion
 
 That's all Folks. By this tutorial, we smoothly mixed HDD and SSD with a single zpool. Our HDD are exclusively storing our data,
 whereas the most of the activity is charging our SSD. To this matters, some parameters has been applied to MariaDB in order

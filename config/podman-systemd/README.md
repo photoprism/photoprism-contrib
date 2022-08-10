@@ -1,4 +1,4 @@
-# photoprism via podman and systemd
+# Running PhotoPrism via Podman and systemd
 
 You are going to run the containers in *user mode* with `podman`. You would need to set up a (new) user. We assume the username is **photoprism** (otherwise you have to adjust a few files and commands), and that this user is *dedicated* for the task at hand: running the service and hosting the image files. *So we are going to put all directories and files inside this user's home directory*.
 

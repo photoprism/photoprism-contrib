@@ -2,6 +2,11 @@
 
 [![Contributors](https://img.shields.io/github/contributors/photoprism/photoprism-contrib.svg)]([https://photoprism.app/team](https://github.com/photoprism/photoprism-contrib/graphs/contributors))
 
+**Config Examples and Tutorials:**
+
+- [Running PhotoPrism with Podman and systemd](tutorials/fs/ZFS%20Optimzed%20for%20Photoprism.md)
+- [Optimizing ZFS Storage for PhotoPrism](tutorials/fs/ZFS%20Optimzed%20for%20Photoprism.md)
+
 **Do you have scripts, libraries, tutorials, or config examples you'd like to share?** We now provide this dedicated GitHub repository so they can be better organized and shared. Feel free to send a pull request.
 
 ## Connect with the Community ##
