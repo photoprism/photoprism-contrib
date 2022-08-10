@@ -9,7 +9,6 @@ You are going to run the containers in *user mode* with `podman`. You would need
   - having **podman** installed
   - having **git** installed
 
-
 ## creating the user
 
 You are going to create the new user photoprism and afterwards assign a password:
@@ -17,7 +16,6 @@ You are going to create the new user photoprism and afterwards assign a password
 ```shell
 sudo useradd -m photoprism && sudo passwd photoprism
 ```
-
 
 ## Set up
 
@@ -120,8 +118,6 @@ You might want to change the admin password in `container-photoprism-webserver-u
 
 All [config option described here](https://docs.photoprism.app/getting-started/config-options/) are still available. just add the corresponding options to `container-photoprism-webserver-user.env` 
 
-
-
 ### installing the pod and containers as systemd units
 
 ```shell
@@ -167,15 +163,21 @@ Next you are going to enable automatic updates of our images. The containers are
 systemctl --user enable --now podman-auto-update.timer
 ```
 
-
-
 ## next steps / TODOs / known issues
 
 - proxy, e.g. nginx
 - allow writing to `import` e.g. via smb
 
+## Works with
 
+- Fedora Server 36+
+  - [x] as described
+- Ubuntu Server 22.04+
+  - [x] works with the following changes:
+    - `sudo apt install podman -y`
+    - you might start with `bash` after logging into the newly created user (if your prompt looks minimal or `echo $0` says `-sh`) 
 
 # meta information
 
 - tested with `Fedora Server 36` and `podman 4.1.1`
+- tested with `Ubuntu Server 22.04` and `podman 3.4.4`
