@@ -9,7 +9,6 @@ You are going to run the containers in *user mode* with `podman`. You would need
   - having **podman** installed
   - having **git** installed
 
-
 ## creating the user
 
 You are going to create the new user photoprism and afterwards assign a password:
@@ -17,7 +16,6 @@ You are going to create the new user photoprism and afterwards assign a password
 ```shell
 sudo useradd -m photoprism && sudo passwd photoprism
 ```
-
 
 ## Set up
 
@@ -72,7 +70,7 @@ git clone https://github.com/photoprism/photoprism-contrib.git
 navigate into the repository
 
 ```shell
-cd photoprism-contrib
+cd photoprism-contrib/config/podman-systemd/
 ```
 
 ### configuring the containers
@@ -82,8 +80,8 @@ All relevant files are located in `podman-systemd`
 #### creating your config files
 
 ```shell
-cp podman-systemd/container-photoprism-database-user.template podman-systemd/container-photoprism-database-user.env
-cp podman-systemd/container-photoprism-webserver-user.template podman-systemd/container-photoprism-webserver-user.env
+cp ./container-photoprism-database-user.template ./container-photoprism-database-user.env
+cp ./container-photoprism-webserver-user.template ./container-photoprism-webserver-user.env
 ```
 
 #### database
@@ -107,7 +105,7 @@ You can change this by editing the two files `container-photoprism-database-user
 In case you decided to persist your data in non-standard directories or you are running photoprism as another user, you would need to create a new `.env` file and adjust it accordingly:
 
 ```shell
-cp podman-systemd/volumes-photoprism-user.template podman-systemd/volumes-photoprism-user.env
+cp ./volumes-photoprism-user.template ./volumes-photoprism-user.env
 ```
 
 #### initial admin password for photoprism
@@ -120,14 +118,12 @@ You might want to change the admin password in `container-photoprism-webserver-u
 
 All [config option described here](https://docs.photoprism.app/getting-started/config-options/) are still available. just add the corresponding options to `container-photoprism-webserver-user.env` 
 
-
-
 ### installing the pod and containers as systemd units
 
 ```shell
 ln -s \
- $(pwd)/podman-systemd/*.service \
- $(pwd)/podman-systemd/*.env \
+ $(pwd)/*.service \
+ $(pwd)/*.env \
  ~/.config/systemd/user/
 ```
 
@@ -167,15 +163,21 @@ Next you are going to enable automatic updates of our images. The containers are
 systemctl --user enable --now podman-auto-update.timer
 ```
 
-
-
 ## next steps / TODOs / known issues
 
 - proxy, e.g. nginx
 - allow writing to `import` e.g. via smb
 
+## Works with
 
+- Fedora Server 36+
+  - [x] as described
+- Ubuntu Server 22.04+
+  - [x] works with the following changes:
+    - `sudo apt install podman -y`
+    - you might start with `bash` after logging into the newly created user (if your prompt looks minimal or `echo $0` says `-sh`) 
 
 # meta information
 
 - tested with `Fedora Server 36` and `podman 4.1.1`
+- tested with `Ubuntu Server 22.04` and `podman 3.4.4`
