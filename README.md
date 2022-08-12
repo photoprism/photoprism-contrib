@@ -4,10 +4,16 @@
 
 **Do you have scripts, libraries, tutorials, or config examples you'd like to share?** We now provide this dedicated GitHub repository so they can be better organized and shared. Feel free to send a pull request.
 
+### Apps and Plugins
+- [Geolocation plugin to set locations on a map](apps/Geolocation%20Plugin/README.md)
+
 ### Config Examples and Tutorials
 
 - [Running PhotoPrism with Podman and systemd](config/podman-systemd/README.md)
 - [Optimizing ZFS Storage for PhotoPrism](tutorials/fs/ZFS%20Optimzed%20for%20Photoprism.md)
+
+### Scripts
+- [Transfer Google Photos Albums](scripts/Transfer%20Google%20Photos%20Albums%20To%20PhotoPrism/README.md)
 
 ## Connect with the Community
 
