@@ -74,26 +74,26 @@ Let’s decipher each argument from this command:
 
 `-m /mnt/poolpath`: `-m` indicates the mountpoint path to our pool, it’s followed by its path `/mnt/poolpath`
 
-Poolname : the name of our pool if we want to apply zfs or zpool commands later to a specific pool
+`Poolname` : the name of our pool if we want to apply zfs or zpool commands later to a specific pool
 
-Raidz : It specify the kind of pool we wish. Here’s the more known Raid-5 allowing use to loose 1 drive without definite data loss.
+`Raidz` : It specify the kind of pool we wish. Here’s the more known Raid-5 allowing use to loose 1 drive without definite data loss.
 
 `-o` : Switch to specify the introduction of a property at our pool creation and must be repeated for each one.
 
-ashift=12 : First of all, the ashift property set the pool sector size exponent, to the power of 2. 
+`ashift=12` : First of all, the ashift property set the pool sector size exponent, to the power of 2. 
 More simple and not totally right, the interval between data and parity data as the Raid logical size. 
 The value depends of your storage physical sector size without talking about the flash page size of the SSD. 
 This value concerning the SSD is a real debate, so we’ll not talk about it. It’s only safe to set it to 12 which
 represents a 4k logical size. The operating system utilities write/read operation on our drive will then treat 4KiB per I/O.
 
-Autoexpand=on : If we replace after successfull resilvering all our disks with higher capacity ones,
+`Autoexpand=on` : If we replace after successfull resilvering all our disks with higher capacity ones,
 the ZFS pool will automaticallly resize and use the whole space newly accessible.
 
-Autoreplace=on : In case of drive replacement, ZFS detects by the drive location a replacement and
+`Autoreplace=on` : In case of drive replacement, ZFS detects by the drive location a replacement and
 automatically integrate the new drive with a resilvering. It does work when a hot spare is available, 
 but it must be set when we create the pool before a hot spare is added later to not forget that the parameter was not activated. 
 
-Autotrim=on : Specific to SSD, it’s supposed to be automatic, but we’re paranoid. It let the SSD indicates 
+`Autotrim=on` : Specific to SSD, it’s supposed to be automatic, but we’re paranoid. It let the SSD indicates 
 the cellules occuped by deleted files for writing to expand it lifespan.
 
 ### Add the Special vDEV to our Pool
@@ -116,17 +116,17 @@ zfs set dedup=off poolname
 zfs set recordsize=1M poolname
 ```
 
-Atime=off :  Controls whether or not the access time of files is updated when the file is read.
+`Atime=off` :  Controls whether or not the access time of files is updated when the file is read.
 This is not really relevant for a personnal NAS/Server and diminish the read/write operation by the « off » value.
 
-Primarycache=metadata : Controls what is cached in the primary cache (ARC). If this property is set to "all", 
+`Primarycache=metadata` : Controls what is cached in the primary cache (ARC). If this property is set to "all", 
 then both user data and metadata is cached. If set to "none", then neither are cached. If set to "metadata", then
 only metadata is cached
 
-Compression=off : Literally the compression use for every file on the pool. Pictures and videos are barely not compressible,
+`Compression=off` : Literally the compression use for every file on the pool. Pictures and videos are barely not compressible,
 so the value is better off to not make the CPU work for nearly nothing.
 
-recordsize=1M : The recordsize can be seen as the ZFS filesystem block size and represents the minimal size of a data. 
+`recordsize=1M` : The recordsize can be seen as the ZFS filesystem block size and represents the minimal size of a data. 
 As photos used to weight several MB/Mo, we’ll set the value to 1M and explain in the next part why we’re doing it.
 
 ## Dataset creation and properties
@@ -147,11 +147,11 @@ dataset created will inherit this propertie.
 
 To create our first dataset :
 
-zfs create poolname/Photos
+`zfs create poolname/Photos`
 
 To check our Zpool propertie inheritance :
 
-zfs get -r recordsize poolname
+`zfs get -r recordsize poolname`
 
 NAME                    PROPERTY    VALUE    SOURCE
 poolname            recordsize  1M       local
@@ -160,34 +160,34 @@ poolname/Photos     recordsize  1M       inherited from poolname
 Now that we’re aware about this particularity we’ll reverse the Zpool recordsize to its original value and set it to 
 the child dataset to break the inheritance.
 
-zfs set recordsize=128k poolname
-zfs set recordsize=1M poolname/Photos
+`zfs set recordsize=128k poolname`
+`zfs set recordsize=1M poolname/Photos`
 
 Let’s also create our others datasets Appdata, photoprism and mariadb
 
-zfs create yourpoolname/Appdata
-zfs create yourpoolname/Appdata/photoprism
-zfs create yourpoolname/Appdata/mariadb
+`zfs create yourpoolname/Appdata`
+`zfs create yourpoolname/Appdata/photoprism`
+`zfs create yourpoolname/Appdata/mariadb`
 
 ### Optimize our datasets
 
 Recordsize :
-zfs set recordsize=128k poolname/Appdata/photoprism
-zfs set recordsize=16k poolname/Appdata/mariadb
+`zfs set recordsize=128k poolname/Appdata/photoprism
+zfs set recordsize=16k poolname/Appdata/mariadb`
 
 For MariaDB, due to a component named InnoDB. InnoDB uses 16KB pages. Using this property, we tell ZFS to limit the 
 block size to 16KB. This prevents multiple pages from being written in one larger block, as that would necessitate 
 reading the entire larger block for future updates to any one page in that block
 
 Compression :
-zfs set compression=lz4 poolname/Appdata/photoprism
-zfs set compression=lz4 poolname/Appdata/mariadb
+`zfs set compression=lz4 poolname/Appdata/photoprism
+zfs set compression=lz4 poolname/Appdata/mariadb`
 ZFS LZ4 compression is incredibly fast, so we should leave compression to ZFS and not use InnoDB’s built in page 
 compression. As an added benefit, leaving compression to ZFS doesn’t disrupt the block alignment. A variable within
 the MariaDB container shall be added to make this parameter efficient.
 
 Primarycache :
-zfs set primarycache=metadata poolname/Appdata/mariadb
+`zfs set primarycache=metadata poolname/Appdata/mariadb`
 Since InnoDB already does it’s own caching via the Buffer Pool, there is no benefit to also caching the data in the
 page cache, or in the case of ZFS, ARC. Since O_DIRECT (a special flag for application generating their own caching)
 doesn’t disable caching on ZFS, we can disable caching of data in the ARC by setting primarycache to only cache metadata.
@@ -279,8 +279,8 @@ Not necessary on NVMe drives for an home use.
 
 Let's add these two variables to our PhotoPrism container. 
 
-PHOTOPRISM_DATABASE_CONNS=512
-PHOTOPRISM_DATABASE_CONNS_IDLE=512
+`PHOTOPRISM_DATABASE_CONNS=512
+PHOTOPRISM_DATABASE_CONNS_IDLE=512`
 We give it the value we've set in the MariaDB container with --max-connections parameter.
 
 ## Conclusion
