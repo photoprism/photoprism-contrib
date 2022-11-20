@@ -19,5 +19,5 @@ and copy the assigned value to UID and GID variable. Then set both of them to 0,
 You can now apply the modification to our container. You'll notice in the logs that the message "PHOTOPRISM_DISABLE_CHOWN="true" disables permission updates"
 doesn't show up. The folder permissions have been rectified.
 
-Once our Photoprism container has fully boot up, you can set the UID and GID variable to their original value. The PHOTOPRISM_DISABLE_CHOWN is only available
+Once our Photoprism container has fully boot up, you can set back the UID and GID variable to their original value. The PHOTOPRISM_DISABLE_CHOWN is only available
 with root user, so it won't run. Running Photoprism with root user is, as far as I know, only necessary to run this script.
