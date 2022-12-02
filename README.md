@@ -15,6 +15,9 @@
 ### Scripts
 - [Transfer Google Photos Albums](scripts/Transfer%20Google%20Photos%20Albums%20To%20PhotoPrism/README.md)
 
+### Unraid
+- [Resolve Permission Denied on unraid](unraid/solve-permission-problems/README.md)
+
 ## Connect with the Community
 
 Follow us on [Twitter](https://link.photoprism.app/twitter) and join the [Community Chat](https://link.photoprism.app/chat)

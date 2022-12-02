@@ -1,13 +1,13 @@
-#Resolve "Permission Denied" On Unraid
+# Resolve "Permission Denied" On Unraid
 
-##Introduction
+## Introduction
 
 
 After some updates, or after having migrated Photoprism's Appdata folder, you can meet some troubles manifested by this error message : "Permission Denied".
 
 To solve this matter the resolution is quite easy.
 
-##Resolution    
+## Resolution    
 
 First, we need to add a variable to our Photoprism container:
 PHOTOPRISM_DISABLE_CHOWN
