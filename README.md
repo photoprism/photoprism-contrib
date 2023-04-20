@@ -6,6 +6,7 @@
 
 ### Apps and Plugins
 - [Geolocation plugin to set locations on a map](apps/Geolocation%20Plugin/README.md)
+- [Android gallery to view and pick your content from other apps](apps/Android%20Gallery/README.md)
 
 ### Config Examples and Tutorials
 
