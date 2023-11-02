@@ -14,7 +14,9 @@
 - [Optimizing ZFS Storage for PhotoPrism](tutorials/zfs/README.md)
 
 ### Scripts
-- [Transfer Google Photos Albums](scripts/Transfer%20Google%20Photos%20Albums%20To%20PhotoPrism/README.md)
+
+- [Use FFmpeg to Trim the First X Seconds from a Video](scripts/FFmpeg)
+- [Transfer Albums from Google Photos](scripts/Transfer%20Google%20Photos%20Albums%20To%20PhotoPrism/README.md)
 
 ### Unraid
 - [Resolve Permission Denied on unraid](unraid/solve-permission-problems/README.md)

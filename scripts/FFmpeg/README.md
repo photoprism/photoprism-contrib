@@ -1,6 +1,6 @@
 # FFmpeg Helper Scripts
 
-## Remove the first X seconds of an MP4 video
+## Trim the First X Seconds from a Video
 
 The [trim.sh](trim.sh) script cuts the first e.g. 15 seconds from an mp4 video file (please use carefully and create a backup before trying this):
 
