@@ -16,6 +16,7 @@
 
 ### Scripts
 
+- [Fix Extension of JPEGs Matching the `IMG_*.HEIC` Pattern](scripts/FFmpeg)
 - [Transfer Albums from Google Photos](scripts/Transfer%20Google%20Photos%20Albums%20To%20PhotoPrism/README.md)
 - [Trim the First X Seconds from a Video](scripts/FFmpeg)
 
