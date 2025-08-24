@@ -21,6 +21,7 @@
 - [Trim the First X Seconds from a Video](scripts/FFmpeg/README.md)
 - [Fix Filenames of JPEGs Ending with `.HEIC`](scripts/Batch%20Rename/README.md)
 - [Push data from YAML sidecar files to image EXIF data](scripts/YAML%20to%20EXIF/README.md)
+- [Lazygeotag - PhotoPrism & Dawarich Geotagging Tool](scripts/Lazygeotag%20-%20PhotoPrism%20Dawarich%20Geotagging/README.md)
 
 ### Unraid
 
