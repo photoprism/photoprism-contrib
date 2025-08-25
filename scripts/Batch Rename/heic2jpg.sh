@@ -4,7 +4,7 @@
 # match the "*.HEIC" file name pattern from ".HEIC" to ".JPG".
 # It scans the current directory and all subdirectories.
 
-find . -iname "*.HEIC" -print0 | while IFS= read -r -d $'' file; do
+find . -type f -iname "*.HEIC" -print0 | while IFS= read -r -d '' file; do
   if file --brief --mime-type -- "$file" | grep -q '^image/jpeg$'; then
     echo "Renaming \"$file\"..."
     mv -- "$file" "${file%.*}.JPG" ;
