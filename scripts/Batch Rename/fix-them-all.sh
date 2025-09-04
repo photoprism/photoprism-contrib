@@ -4,7 +4,7 @@
 # that using incorrectly file extension to it's actual name.
 # It scans the current directory and all subdirectories.
 
-find . -type f \( -iname "*.JPEG" -o -iname "*.JPG" -o -iname "*.HEIC" -o -iname "*.PNG" \) -print0 | while IFS= read -r -d '' file; do
+find . -type d -name "@eaDir" -prune -o -type f \( -iname "*.JPEG" -o -iname "*.JPG" -o -iname "*.HEIC" -o -iname "*.PNG" \) -print0 | while IFS= read -r -d '' file; do
   mime_type=$(file --brief --mime-type -- "$file")
   filename=$(basename -- "$file")
   ext=".${filename##*.}"
@@ -20,6 +20,9 @@ find . -type f \( -iname "*.JPEG" -o -iname "*.JPG" -o -iname "*.HEIC" -o -iname
       else
         actual_ext=".JPG"
       fi
+      ;;
+    'image/jp2')
+      actual_ext=".JP2"
       ;;
     'image/png')
       actual_ext=".PNG"
