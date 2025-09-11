@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # This script changes the file extension of all HEIC, JPEG, JPG and PNG images
-# that using incorrectly file extension to it's actual name.
+# that are using incorrect file extensions to their actual names.
 # It scans the current directory and all subdirectories.
 
 find . -type d -name "@eaDir" -prune -o -type f \( -iname "*.JPEG" -o -iname "*.JPG" -o -iname "*.HEIC" -o -iname "*.PNG" \) -print0 | while IFS= read -r -d '' file; do
