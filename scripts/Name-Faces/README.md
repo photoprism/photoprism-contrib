@@ -28,13 +28,13 @@ This script fills in names for detected faces when profile JPEGs encode `<firstn
 
 ### 1) Dry-run (default)
 ```bash
-photoprism exec /bin/bash -lc "/photoprism/.local/infineon/name-faces.sh"
+photoprism exec /bin/bash -lc "./name-faces.sh"
 ```
 Outputs planned updates only.
 
 ### 2) Apply updates
 ```bash
-photoprism exec /bin/bash -lc "/photoprism/.local/infineon/name-faces.sh --apply"
+photoprism exec /bin/bash -lc "./name-faces.sh --apply"
 ```
 
 ### 3) Post-step (create/link subjects and faces)
@@ -57,12 +57,12 @@ photoprism exec /bin/bash -lc "photoprism faces update --force"
 
 Example with custom DB host:
 ```bash
-photoprism exec /bin/bash -lc "PHOTOPRISM_DATABASE_SERVER=db:3306 PHOTOPRISM_DATABASE_PASSWORD=secret /photoprism/.local/infineon/name-faces.sh --apply"
+photoprism exec /bin/bash -lc "PHOTOPRISM_DATABASE_SERVER=db:3306 PHOTOPRISM_DATABASE_PASSWORD=secret ./name-faces.sh --apply"
 ```
 
 ## Files & Database Tables
 
-- Script: `.local/infineon/name-faces.sh`
+- Script: `name-faces.sh`
 - Tables:
   - `files` — stores `file_name`, `file_uid`, `file_primary`.
   - `markers` — face markers (`marker_uid`, `file_uid`, `marker_type='face'`, `marker_name`, `subj_uid`, `subj_src`, `face_id`).
