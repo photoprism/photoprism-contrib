@@ -26,7 +26,7 @@ This script fills in names for detected faces when profile JPEGs encode `<firstn
 
 ## Usage Examples
 
-Copy the script to your `photoprism` container, or place it in a mounted directory that is accessible from inside the container (such as the `storage` folder). Then, change to this directory and ensure the script is executable, e.g., by running `chmod 755 name-faces.sh`. 
+Copy the script to your `photoprism` container, or place it in a mounted directory that is accessible from inside the container (such as the `storage` folder). Then, [open a terminal](https://docs.photoprism.app/getting-started/docker-compose/#opening-a-terminal), change to the directory where the script is located (e.g. `cd storage`), and ensure the script is executable (`chmod 755 name-faces.sh`).
 
 ### 1) Dry-run (default)
 ```bash
