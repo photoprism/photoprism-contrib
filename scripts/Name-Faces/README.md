@@ -64,7 +64,7 @@ PHOTOPRISM_DATABASE_SERVER=db:3306 PHOTOPRISM_DATABASE_PASSWORD=secret ./name-fa
 
 ## Implementation
 
-- Subject creation is handled by `photoprism faces update` via `query.CreateMarkerSubjects()` which picks markers with `marker_name <> ''`, `subj_src <> 'auto'`, `marker_type='face'`, `subj_uid=''`.
+- Subject creation is handled by `photoprism faces update` via `query.CreateMarkerSubjects()` which picks markers with `marker_name <> ''`, `marker_type='face'`, `subj_uid=''`.
 - If you add logic (e.g., better filename parsing, multi-face support), ensure:
   - You keep the guard `(m.subj_uid IS NULL OR m.subj_uid='')`.
   - You don’t bypass `LIMIT 1`.
