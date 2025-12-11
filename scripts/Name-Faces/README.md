@@ -24,7 +24,7 @@ This script fills in names for detected faces when profile JPEGs encode `<firstn
 - Requires an existing marker with embeddings; otherwise `faces update` cannot create a subject/face.
 - Runs a single-row `UPDATE ... LIMIT 1` per file to prevent bulk mistakes.
 
-## Usage Examples
+## Usage
 
 Copy the script to your `photoprism` container, or place it in a mounted directory that is accessible from inside the container (such as the `storage` folder). Then, [open a terminal](https://docs.photoprism.app/getting-started/docker-compose/#opening-a-terminal), change to the directory where the script is located (e.g. `cd storage`), and ensure the script is executable (`chmod 755 name-faces.sh`).
 
@@ -62,18 +62,7 @@ Example with custom DB host:
 PHOTOPRISM_DATABASE_SERVER=db:3306 PHOTOPRISM_DATABASE_PASSWORD=secret ./name-faces.sh --apply
 ```
 
-## Files & Database Tables
-
-- Script: `name-faces.sh`
-- Tables:
-  - `files` — stores `file_name`, `file_uid`, `file_primary`.
-  - `markers` — face markers (`marker_uid`, `file_uid`, `marker_type='face'`, `marker_name`, `subj_uid`, `subj_src`, `face_id`).
-  - `subjects` — people records; created later by `photoprism faces update`.
-- Key query used by the script (simplified):
-  - `SELECT m.marker_uid, m.subj_uid FROM markers m JOIN files f ON f.file_uid=m.file_uid WHERE f.file_name=:filename AND f.file_primary=1 AND m.marker_type='face';`
-  - `UPDATE markers ... SET marker_name=:full_name, subj_src='manual' WHERE f.file_name=:filename AND f.file_primary=1 AND m.marker_type='face' AND (m.subj_uid IS NULL OR m.subj_uid='') LIMIT 1;`
-
-## Contributor Notes
+## Implementation
 
 - Subject creation is handled by `photoprism faces update` via `query.CreateMarkerSubjects()` which picks markers with `marker_name <> ''`, `subj_src <> 'auto'`, `marker_type='face'`, `subj_uid=''`.
 - If you add logic (e.g., better filename parsing, multi-face support), ensure:
@@ -85,9 +74,23 @@ PHOTOPRISM_DATABASE_SERVER=db:3306 PHOTOPRISM_DATABASE_PASSWORD=secret ./name-fa
   - `internal/entity/query/subjects.go` (CreateMarkerSubjects)
   - `internal/photoprism/faces.go` and `faces_update` command wiring.
 
+### Database Tables & Queries
+
+- Tables:
+  - `files` — stores `file_name`, `file_uid`, `file_primary`.
+  - `markers` — face markers (`marker_uid`, `file_uid`, `marker_type='face'`, `marker_name`, `subj_uid`, `subj_src`, `face_id`).
+  - `subjects` — people records; created later by `photoprism faces update`.
+- Key query used by the script (simplified):
+  - `SELECT m.marker_uid, m.subj_uid FROM markers m JOIN files f ON f.file_uid=m.file_uid WHERE f.file_name=:filename AND f.file_primary=1 AND m.marker_type='face';`
+  - `UPDATE markers ... SET marker_name=:full_name, subj_src='manual' WHERE f.file_name=:filename AND f.file_primary=1 AND m.marker_type='face' AND (m.subj_uid IS NULL OR m.subj_uid='') LIMIT 1;`
+
 ## Troubleshooting
 
-- “Missing required command: mariadb” → install the MariaDB client in the container image.
-- “Pictures directory not found” → ensure `PHOTOPRISM_ORIGINALS_PATH` points to the correct mount and that `Pictures/` exists.
-- No-op updates for a file → likely the marker already has `subj_uid` or the filename doesn’t match pattern.
-- After apply, still no subject → run `photoprism faces update --force`; if still empty, the marker may lack embeddings; re-run face detection or re-index that file.
+- **Missing mariadb:**
+  install the MariaDB client in the container image.
+- **Pictures directory not found:**
+  ensure `PHOTOPRISM_ORIGINALS_PATH` points to the correct mount and that `Pictures/` exists.
+- **No-op updates for a file:**
+  likely the marker already has `subj_uid` or the filename doesn’t match pattern.
+- **After apply, still no subject:**
+  `photoprism faces update --force`; if still empty, the marker may lack embeddings; re-run face detection or re-index that file.
