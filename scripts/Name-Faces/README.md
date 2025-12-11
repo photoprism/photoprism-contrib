@@ -26,20 +26,22 @@ This script fills in names for detected faces when profile JPEGs encode `<firstn
 
 ## Usage Examples
 
+Copy the script to your `photoprism` container or place it in a mounted directory accessible from inside the container, such as the `storage` folder. Make sure it is executable, for example by running `chmod 755 ./name-faces.sh`. 
+
 ### 1) Dry-run (default)
 ```bash
-photoprism exec /bin/bash -lc "./name-faces.sh"
+./name-faces.sh
 ```
 Outputs planned updates only.
 
 ### 2) Apply updates
 ```bash
-photoprism exec /bin/bash -lc "./name-faces.sh --apply"
+./name-faces.sh --apply
 ```
 
 ### 3) Post-step (create/link subjects and faces)
 ```bash
-photoprism exec /bin/bash -lc "photoprism faces update --force"
+photoprism faces update --force
 ```
 
 ### Options
@@ -57,7 +59,7 @@ photoprism exec /bin/bash -lc "photoprism faces update --force"
 
 Example with custom DB host:
 ```bash
-photoprism exec /bin/bash -lc "PHOTOPRISM_DATABASE_SERVER=db:3306 PHOTOPRISM_DATABASE_PASSWORD=secret ./name-faces.sh --apply"
+PHOTOPRISM_DATABASE_SERVER=db:3306 PHOTOPRISM_DATABASE_PASSWORD=secret ./name-faces.sh --apply
 ```
 
 ## Files & Database Tables
