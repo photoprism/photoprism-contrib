@@ -23,7 +23,7 @@ Options:
   -h, --help   Show this help.
 
 Env vars (defaults in parentheses):
-  PHOTOPRISM_ORIGINALS_PATH   Originals root (storage/originals)
+  PHOTOPRISM_ORIGINALS_PATH   Originals root (/photoprism/originals)
   PHOTOPRISM_DATABASE_SERVER  Host[:port] (required, e.g. mariadb:3306)
   PHOTOPRISM_DATABASE_NAME    Database name (photoprism)
   PHOTOPRISM_DATABASE_USER    DB user (root)
@@ -61,7 +61,7 @@ need_cmd mariadb
 ## Config & DB connection  ##
 #############################
 
-ORIGINALS_ROOT=${PHOTOPRISM_ORIGINALS_PATH:-storage/originals}
+ORIGINALS_ROOT=${PHOTOPRISM_ORIGINALS_PATH:-/photoprism/originals}
 
 DB_SERVER=${PHOTOPRISM_DATABASE_SERVER:-}
 DB_NAME=${PHOTOPRISM_DATABASE_NAME:-photoprism}

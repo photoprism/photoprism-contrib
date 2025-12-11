@@ -51,7 +51,7 @@ photoprism faces update --force
 
 ### Environment Variables
 
-- `PHOTOPRISM_ORIGINALS_PATH` (default `/photoprism/storage/originals`)
+- `PHOTOPRISM_ORIGINALS_PATH` (default `/photoprism/originals`)
 - `PHOTOPRISM_DATABASE_SERVER` (default `mariadb:3306`)
 - `PHOTOPRISM_DATABASE_NAME`   (default `photoprism`)
 - `PHOTOPRISM_DATABASE_USER`   (default `root`)
