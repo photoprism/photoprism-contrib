@@ -17,6 +17,7 @@
 
 ### Scripts
 
+- [Bulk assign names to faces](scripts/Name-Faces/README.md)
 - [Transfer Albums from Google Photos](scripts/Transfer%20Google%20Photos%20Albums%20To%20PhotoPrism/README.md)
 - [Trim the First X Seconds from a Video](scripts/FFmpeg/README.md)
 - [Fix Filenames of JPEGs Ending with `.HEIC`](scripts/Batch%20Rename/README.md)
