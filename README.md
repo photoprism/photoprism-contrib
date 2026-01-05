@@ -38,6 +38,7 @@ to get regular updates, connect with other users, and discuss your ideas. Our [C
 - [photoprism/photoprism](https://github.com/photoprism/photoprism) - AI-Powered Photos App for the Decentralized Web 🌈💎✨
 - [photoprism/photoprism-docs](https://github.com/photoprism/photoprism-docs) - Official Documentation (English)
 - [photoprism/photoprism-docs-de](https://github.com/photoprism/photoprism-docs-de) - User Guide (German)
+- Example
 
 ----
 
