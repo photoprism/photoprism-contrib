@@ -49,7 +49,7 @@ If your contribution includes **third-party code under a different license**, pl
 
 ## Code of Conduct
 
-All interaction in this repository is subject to the [PhotoPrism Code of Conduct](https://www.photoprism.app/code-of-conduct). Be kind, be patient, and assume good faith.
+All interaction in this repository is subject to the [PhotoPrism Code of Conduct](https://www.photoprism.app/code-of-conduct/). Be kind, be patient, and assume good faith.
 
 ## Thank You to All Current and Past Sponsors 💎 ##
 
@@ -74,4 +74,4 @@ Because many of these apps and tools were originally developed for internal use 
 
 ----
 
-*PhotoPrism® is a [registered trademark](https://www.photoprism.app/trademark). By using the software and services we provide, you agree to our [Terms of Service](https://www.photoprism.app/terms), [Privacy Policy](https://www.photoprism.app/privacy), and [Code of Conduct](https://www.photoprism.app/code-of-conduct). Docs are [available](https://link.photoprism.app/github-docs) under the [CC BY-NC-SA 4.0 License](https://creativecommons.org/licenses/by-nc-sa/4.0/); [additional terms](https://github.com/photoprism/photoprism/blob/develop/assets/README.md) may apply.*
+*PhotoPrism® is a [registered trademark](https://www.photoprism.app/trademark/). By using the software and services we provide, you agree to our [Terms of Service](https://www.photoprism.app/terms/), [Privacy Policy](https://www.photoprism.app/privacy/), and [Code of Conduct](https://www.photoprism.app/code-of-conduct/). Docs are [available](https://link.photoprism.app/github-docs) under the [CC BY-NC-SA 4.0 License](https://creativecommons.org/licenses/by-nc-sa/4.0/); [additional terms](https://github.com/photoprism/photoprism/blob/develop/assets/README.md) may apply.*
