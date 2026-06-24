@@ -1,6 +1,6 @@
 # PhotoPrism: Contributed Resources
 
-[![Contributors](https://img.shields.io/github/contributors/photoprism/photoprism-contrib.svg)]([https://www.photoprism.app/team/](https://github.com/photoprism/photoprism-contrib/graphs/contributors))
+[![Contributors](https://img.shields.io/github/contributors/photoprism/photoprism-contrib.svg)](https://github.com/photoprism/photoprism-contrib/graphs/contributors)
 
 **Do you have scripts, libraries, tutorials, or config examples you'd like to share?** We now provide this dedicated GitHub repository so they can be better organized and shared. Feel free to send a pull request.
 
